@@ -2,10 +2,8 @@ name: Build and Push Docker Image
 
 on:
   push:
-    branches:
-      - main
     tags:
-      - 'v*'
+      - 'v*'     # dès qu’un tag v1.0.0 est push → pipeline
   workflow_dispatch:
 
 jobs:
@@ -28,19 +26,15 @@ jobs:
           IMAGE="${{ secrets.IMAGE_NAME }}"
           GIT_REF="${GITHUB_REF}"
 
-          # Toujours tag latest
           TAGS="$IMAGE:latest"
 
-          # Si on est sur un tag du type refs/tags/v1.2.3
           if [[ "$GIT_REF" == refs/tags/v* ]]; then
-            VERSION_WITH_V="${GIT_REF#refs/tags/}"   # v1.2.3
-            VERSION="${VERSION_WITH_V#v}"            # 1.2.3
-
+            VERSION_WITH_V="${GIT_REF#refs/tags/}"   # v1.0.0
+            VERSION="${VERSION_WITH_V#v}"            # 1.0.0
             TAGS="$TAGS,$IMAGE:$VERSION_WITH_V,$IMAGE:$VERSION"
           fi
 
           echo "tags=$TAGS" >> $GITHUB_OUTPUT
-          echo "TAGS=$TAGS"
 
       - name: Build Docker image
         run: |
