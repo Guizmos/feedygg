@@ -173,7 +173,7 @@ body {
 }
 
 /* ====================================================================== */
-/* ICONES MATERIAL SYMBOLS (unifiées)                                     */
+/* ICONES MATERIAL SYMBOLS (unifiï¿½es)                                     */
 /* ====================================================================== */
 
 .material-symbols-rounded {
@@ -192,7 +192,7 @@ body {
   line-height: 1;
 }
 
-/* icône de loupe dans le champ de recherche un poil plus petite */
+/* icï¿½ne de loupe dans le champ de recherche un poil plus petite */
 .search-icon.icon-glyph {
   font-size: 18px;
 }
@@ -230,7 +230,7 @@ body {
     0 8px 20px rgba(15, 23, 42, 0.6);
 }
 
-/* Thème clair : même logique que .controls-search-btn */
+/* Thï¿½me clair : mï¿½me logique que .controls-search-btn */
 .theme-light .header-btn {
   background: rgba(255, 255, 255, 0.96);
   box-shadow:
@@ -296,7 +296,7 @@ body {
   color: var(--accent);
 }
 
-/* container de recherche à l'intérieur du pill .controls */
+/* container de recherche ï¿½ l'intï¿½rieur du pill .controls */
 .search-container {
   display: flex;
   align-items: center;
@@ -351,7 +351,7 @@ body {
   color: var(--accent);
 }
 
-/* petit rond pour les filtres compactés */
+/* petit rond pour les filtres compactï¿½s */
 .filters-mini {
   width: var(--filters-pill-height);
   height: var(--filters-pill-height);
@@ -373,7 +373,7 @@ body {
 }
 
 .app-header.header-compact {
-  justify-content: space-between;   /* on garde le même alignement */
+  justify-content: space-between;   /* on garde le mï¿½me alignement */
 }
 
 /* on cache visuellement mais on garde la place dans le flex */
@@ -594,7 +594,7 @@ body {
   padding-right: 26px;
 }
 
-/* Bandeau catégorie sur la carte */
+/* Bandeau catï¿½gorie sur la carte */
 .card-category {
   position: absolute;
   top: 10px;
@@ -629,7 +629,7 @@ body {
   box-shadow: 0 0 0 3px rgba(148, 163, 184, 0.35);
 }
 
-/* Couleur par catégorie (mode sombre) */
+/* Couleur par catï¿½gorie (mode sombre) */
 .card-category--film {
   color: #38bdf8;
   border-color: rgba(56, 189, 248, 0.75);
@@ -660,7 +660,7 @@ body {
   border-color: rgba(34, 197, 94, 0.85);
 }
 
-/* Variante thème clair */
+/* Variante thï¿½me clair */
 .theme-light .card-category {
   background: rgba(248, 250, 252, 0.96);
   border-color: rgba(148, 163, 184, 0.55);
@@ -784,7 +784,7 @@ body {
   border-color: rgba(56, 189, 248, 0.8);
 }
 
-/* thème clair */
+/* thï¿½me clair */
 .theme-light .btn-details {
   background: transparent;
   color: var(--accent);
@@ -803,7 +803,7 @@ body {
 /* SETTINGS + LOGS MODALS                                                 */
 /* ====================================================================== */
 
-/* overlay plein écran */
+/* overlay plein ï¿½cran */
 .settings-overlay {
   position: fixed;
   inset: 0;
@@ -849,7 +849,7 @@ body {
   font-size: 1.35rem;
 }
 
-/* lignes internes : 2 colonnes (gauche = label + picto, droite = contrôle) */
+/* lignes internes : 2 colonnes (gauche = label + picto, droite = contrï¿½le) */
 .settings-row {
   display: flex;
   align-items: center;
@@ -867,13 +867,13 @@ body {
   border-bottom: none;
 }
 
-/* léger hover */
+/* lï¿½ger hover */
 .settings-row:hover {
   background: rgba(15, 23, 42, 0.6);
   border-color: rgba(56, 189, 248, 0.5);
 }
 
-/* bloc gauche : icône + textes */
+/* bloc gauche : icï¿½ne + textes */
 .settings-row-main {
   display: flex;
   align-items: center;
@@ -915,18 +915,18 @@ body {
   opacity: 0.85;
 }
 
-/* colonne droite : contrôles alignés à droite + largeur fixe */
+/* colonne droite : contrï¿½les alignï¿½s ï¿½ droite + largeur fixe */
 .settings-center {
   flex: 0 0 130px;       /* <-- ajuste ici si tu veux plus/moins large */
   display: flex;
   justify-content: flex-end;
 }
 
-/* mêmes dimensions pour select & bouton logs */
+/* mï¿½mes dimensions pour select & bouton logs */
 .settings-modal .pill-select,
 .settings-modal .btn-logs {
   width: 130px;
-  min-width: 0px;      /* <-- à garder cohérent avec flex ci-dessus */
+  min-width: 0px;      /* <-- ï¿½ garder cohï¿½rent avec flex ci-dessus */
   min-height: 34px;
   border-radius: 999px;
   text-align: center;
@@ -1055,15 +1055,15 @@ body {
 .details-modal {
   width: min(1000px, calc(100% - 32px));
   max-width: 1000px;
-  margin: 0 auto;           /* même largeur qu'avant, pas plein écran */
+  margin: 0 auto;           /* mï¿½me largeur qu'avant, pas plein ï¿½cran */
   padding-top: 32px;        /* un peu plus d'espace au-dessus */
-  padding-bottom: 32px;     /* même marge en bas -> visuel centré */
+  padding-bottom: 32px;     /* mï¿½me marge en bas -> visuel centrï¿½ */
 }
 
 .details-layout {
   display: flex;
   gap: 24px;
-  align-items: center;      /* centre l’affiche par rapport au bloc texte */
+  align-items: center;      /* centre lï¿½affiche par rapport au bloc texte */
   justify-content: flex-start;
 }
 
@@ -1121,7 +1121,7 @@ body {
 }
 
 .details-meta-line::before {
-  content: "• ";
+  content: "ï¿½ ";
   opacity: 0.6;
 }
 
@@ -1274,6 +1274,73 @@ body {
 }
 
 /* ====================================================================== */
+/* FOOTER                                                                 */
+/* ====================================================================== */
+
+.app-footer {
+  max-width: 1400px;
+  margin: 1px auto 0;
+  padding: 10px 4px 4px;
+  text-align: center;
+  font-size: 12px;
+  color: var(--muted);
+  opacity: 0.7;
+  user-select: none;
+  cursor: pointer;
+  transition: opacity 0.2s ease, transform 0.15s ease;
+}
+
+.app-footer:hover {
+  opacity: 0.95;
+  transform: translateY(-1px);
+}
+
+.footer-inner {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: rgba(3, 7, 18, 0.7);
+  border: 1px solid rgba(148, 163, 253, 0.28);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+.theme-light .footer-inner {
+  background: rgba(255, 255, 255, 0.9);
+  border-color: rgba(148, 163, 184, 0.45);
+}
+
+.footer-logo {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.footer-logo .logo-main {
+  font-size: 14px;
+}
+
+.footer-logo .logo-sub {
+  font-size: 13px;
+}
+
+.footer-separator {
+  opacity: 0.6;
+}
+
+.footer-text {
+  font-size: 12px;
+}
+
+.footer-version {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--accent);
+}
+
+/* ====================================================================== */
 /* RESPONSIVE                                                             */
 /* ====================================================================== */
 
@@ -1358,7 +1425,7 @@ body {
     pointer-events: none;
   }
 
-  /* On garde la classe au cas où, mais on ne touche plus à la hauteur
+  /* On garde la classe au cas oï¿½, mais on ne touche plus ï¿½ la hauteur
      -> pas de "saut" vertical quand on toggle */
   .app-header.header-mobile-tight {
     padding-top: 8px;
@@ -1402,7 +1469,7 @@ body {
   .filters-mini .material-symbols-rounded {
     font-size: 18px;             /* un poil plus gros pour suivre */
   }
-  /* ====================== CONTROLS — MODE NORMAL ====================== */
+  /* ====================== CONTROLS ï¿½ MODE NORMAL ====================== */
 
   .controls {
     order: 3;
@@ -1457,15 +1524,15 @@ body {
   #limit-select.pill-select    { width: auto; }
   #sort-select.pill-select     { width: auto; }
 
-  /* ====================== CONTROLS — MODE COLLAPSED ====================== */
+  /* ====================== CONTROLS ï¿½ MODE COLLAPSED ====================== */
 
   .controls.controls-collapsed {
-    /* IMPORTANT : on ne touche pas à la hauteur globale, juste au layout horizontal */
-    width: auto;              /* se réduit en largeur */
+    /* IMPORTANT : on ne touche pas ï¿½ la hauteur globale, juste au layout horizontal */
+    width: auto;              /* se rï¿½duit en largeur */
     max-width: none;
     min-width: 0;
 
-    margin-left: auto;        /* collé à droite */
+    margin-left: auto;        /* collï¿½ ï¿½ droite */
     padding: 2px;
     border-radius: 999px;
 
@@ -1479,7 +1546,7 @@ body {
   }
 
   .controls.controls-collapsed {
-    /* IMPORTANT : on ne touche plus à la largeur globale */
+    /* IMPORTANT : on ne touche plus ï¿½ la largeur globale */
     width: 100%;
     max-width: 100%;
     min-width: 0;
@@ -1494,7 +1561,7 @@ body {
     box-shadow: none;
     backdrop-filter: none;
 
-    justify-content: flex-end;  /* le rond glisse à droite */
+    justify-content: flex-end;  /* le rond glisse ï¿½ droite */
     overflow: hidden;           /* on masque tout sauf le bouton */
   }
 
@@ -1515,7 +1582,7 @@ body {
     margin: 0;
   }
   .search-input {
-    font-size: 16px;   /* >= 16px pour éviter le zoom Safari */
+    font-size: 16px;   /* >= 16px pour ï¿½viter le zoom Safari */
     line-height: 1.3;
   }
   .cards-grid,
@@ -1528,7 +1595,7 @@ body {
     box-sizing: border-box;
   }
 
-  /* Les sections de groupe ne dépassent jamais */
+  /* Les sections de groupe ne dï¿½passent jamais */
   .category-group {
     width: 100%;
     max-width: 100%;
@@ -1537,7 +1604,7 @@ body {
     padding-right: 10px;
   }
 
-  /* Les cartes prennent 100% de la colonne et ne débordent pas */
+  /* Les cartes prennent 100% de la colonne et ne dï¿½bordent pas */
   .card {
     width: 100%;
     max-width: 100%;

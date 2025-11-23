@@ -7,6 +7,9 @@ const Database = require("better-sqlite3");
 const fs = require("fs");
 const path = require("path");
 
+const pkg = require("./package.json");
+const APP_VERSION = pkg.version;
+
 // -----------------------------------------------------------------------------
 // CONFIG ENV
 // -----------------------------------------------------------------------------
@@ -137,6 +140,11 @@ const app = express();
 
 // static front (public/)
 app.use(express.static(path.join(__dirname, "public")));
+
+// Route pour exposer la version de l'appli
+app.get("/version", (req, res) => {
+  res.json({ version: APP_VERSION });
+});
 
 // -----------------------------------------------------------------------------
 // SQLITE INIT

@@ -74,6 +74,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const detailsExtraEl = document.getElementById("details-extra");
   const detailsImdbLinkEl = document.getElementById("details-imdb-link");
 
+  // --- Footer / Version ---
+  const footerEl = document.getElementById("app-footer");
+  const appVersionEl = document.getElementById("app-version");
+
   let controlsCollapsed = false;
   let controlsManuallyExpanded = false;
 
@@ -928,6 +932,33 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
 
+  // --- Settings footer/version ---
+
+  async function initVersionFooter() {
+    if (footerEl) {
+      footerEl.addEventListener("click", () => {
+        window.open("https://github.com/Guizmos/FeedyGG", "_blank");
+      });
+    }
+
+    if (!appVersionEl) return;
+
+    try {
+      const res = await fetch("/version", { cache: "no-cache" });
+      if (!res.ok) throw new Error("HTTP " + res.status);
+      const data = await res.json();
+
+      if (data && data.version) {
+        appVersionEl.textContent = `v${data.version}`;
+      } else {
+        appVersionEl.textContent = "";
+      }
+    } catch (err) {
+      console.error("Erreur lors de la récupération de la version :", err);
+      appVersionEl.textContent = "";
+    }
+  }
+
   // --- Events ---
 
   // changement du tri par défaut dans les paramètres
@@ -1034,5 +1065,6 @@ document.addEventListener("DOMContentLoaded", () => {
     autosizeSelect(limitSelect);
     autosizeSelect(sortSelect);
     await loadFeed();
+    await initVersionFooter();
   })();
 });
