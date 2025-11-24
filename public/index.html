@@ -84,7 +84,17 @@
     </header>
 
     <main class="app-main">
-      <div id="stats" class="stats"></div>
+      <div class="stats-bar">
+        <div id="stats" class="stats"></div>
+
+        <!-- ✅ PANEL ICI — AVANT le bouton -->
+        <div id="date-filter-panel" class="date-filter-panel hidden"></div>
+
+        <button id="date-filter-btn" class="header-btn date-filter-btn">
+          <span class="material-symbols-rounded">filter_alt</span>
+        </button>
+      </div>
+
       <div id="loading" class="loading hidden">
         <span class="loading-spinner"></span>
         <span>Chargement du flux…</span>
@@ -93,6 +103,7 @@
       <div id="empty" class="empty hidden">Aucun résultat.</div>
       <div id="cards"></div>
     </main>
+
 
     <!-- Footer -->
     <footer id="app-footer" class="app-footer">

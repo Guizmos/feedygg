@@ -73,6 +73,11 @@ document.addEventListener("DOMContentLoaded", () => {
   const detailsPlotEl = document.getElementById("details-plot");
   const detailsExtraEl = document.getElementById("details-extra");
   const detailsImdbLinkEl = document.getElementById("details-imdb-link");
+  const dateFilterBtn = document.getElementById("date-filter-btn");
+  const dateFilterPanel = document.getElementById("date-filter-panel");
+  const DATE_FILTER_STORAGE_KEY = "dateFilterDays";
+
+  let currentDateFilterDays = null;
 
   // --- Footer / Version ---
   const footerEl = document.getElementById("app-footer");
@@ -167,17 +172,24 @@ document.addEventListener("DOMContentLoaded", () => {
     errorEl.classList.add("hidden");
     emptyEl.classList.add("hidden");
 
-    // à chaque reload du feed, on reset la recherche
+    // à chaque reload du feed, on reset la recherche (comportement actuel conservé)
     currentSearch = "";
     if (searchInput) {
       searchInput.value = "";
     }
 
     const category = categorySelect.value || "film";
-    const limit = (limitSelect && limitSelect.value) || "all";
     const sort = (sortSelect && sortSelect.value) || "seeders";
 
-    const params = new URLSearchParams({ category, limit, sort });
+    // On demande TOUJOURS tous les éléments au backend.
+    // La limite (3 / 9 / Tout) et le filtre date sont gérés côté front.
+    const paramsObj = {
+      category,
+      limit: "all",
+      sort,
+    };
+
+    const params = new URLSearchParams(paramsObj);
 
     try {
       const res = await fetch(`/api/feed?${params.toString()}`);
@@ -417,21 +429,17 @@ document.addEventListener("DOMContentLoaded", () => {
         );
       });
 
-      // petit espace visuel entre Détails et les autres boutons
       const spacer = document.createElement("div");
       spacer.style.width = "16px";
       spacer.style.flex = "0 0 16px";
 
-      // ORDRE FINAL : Détails - [espace] - Télécharger - Ouvrir
       actions.append(btnDetails, spacer, btnDl, btnOpen);
     } else {
-      // Pas de bouton Détails -> juste Télécharger / Ouvrir
       actions.append(btnDl, btnOpen);
     }
 
     body.append(actions);
 
-  
     card.append(posterWrap, body);
     return card;
   }
@@ -519,54 +527,296 @@ document.addEventListener("DOMContentLoaded", () => {
       return String(val).toLowerCase().includes(qv);
     });
   }
-  
+
+  // --- Helpers dates pour filtre "X derniers jours" ---
+
+  function parseItemDate(raw) {
+    if (!raw) return null;
+
+    if (raw instanceof Date && !Number.isNaN(raw.getTime())) {
+      return raw;
+    }
+
+    const dNative = new Date(raw);
+    if (!Number.isNaN(dNative.getTime())) {
+      return dNative;
+    }
+
+    const m = String(raw).match(
+      /^(\d{2})\/(\d{2})\/(\d{4})(?:[ T](\d{2}):(\d{2})(?::(\d{2}))?)?$/
+    );
+    if (m) {
+      const day = parseInt(m[1], 10);
+      const month = parseInt(m[2], 10) - 1;
+      const year = parseInt(m[3], 10);
+      const h = m[4] ? parseInt(m[4], 10) : 0;
+      const min = m[5] ? parseInt(m[5], 10) : 0;
+      const s = m[6] ? parseInt(m[6], 10) : 0;
+      return new Date(year, month, day, h, min, s);
+    }
+
+    return null;
+  }
+
+  function ensureItemDate(item) {
+    if (item._addedAtDate instanceof Date && !Number.isNaN(item._addedAtDate.getTime())) {
+      return item._addedAtDate;
+    }
+
+    const raw =
+      item.addedAt ||
+      item.dateAdded ||
+      item.uploadedAt ||
+      item.createdAt ||
+      null;
+
+    const d = parseItemDate(raw);
+    item._addedAtDate = d || null;
+    return item._addedAtDate;
+  }
+
+  function passesDateFilter(item) {
+    if (!currentDateFilterDays || currentDateFilterDays <= 0) return true;
+
+    const d = ensureItemDate(item);
+    if (!d) return true;
+
+    const now = Date.now();
+    const diffMs = now - d.getTime();
+    if (diffMs < 0) return false;
+
+    const maxMs = currentDateFilterDays * 24 * 60 * 60 * 1000;
+    return diffMs <= maxMs;
+  }
+
+  function getUiLimit() {
+    if (!limitSelect) return Infinity;
+
+    const raw = limitSelect.value;
+    if (!raw || raw === "all") return Infinity;
+
+    const n = parseInt(raw, 10);
+    return Number.isFinite(n) && n > 0 ? n : Infinity;
+  }
 
   function renderFromState() {
     if (!feedState.mode) return;
 
     const q = (currentSearch || "").trim().toLowerCase();
+    const hasSearch = !!q;
+    const hasDateFilter = !!(currentDateFilterDays && currentDateFilterDays > 0);
+    const limitValue = getUiLimit();
 
     if (feedState.mode === "groups") {
       let groupsToRender = feedState.groups || [];
 
-      if (q) {
-        groupsToRender = feedState.groups
+      if (hasSearch || hasDateFilter) {
+        groupsToRender = groupsToRender
           .map((g) => ({
             ...g,
-            items: (g.items || []).filter((item) => matchesSearch(item, q)),
+            items: (g.items || []).filter((item) => {
+              const okSearch = matchesSearch(item, q);
+              const okDate = passesDateFilter(item);
+              return okSearch && okDate;
+            }),
+          }))
+          .filter((g) => g.items && g.items.length);
+      }
+
+      // Limite appliquée PAR GROUPE
+      if (Number.isFinite(limitValue)) {
+        groupsToRender = groupsToRender
+          .map((g) => ({
+            ...g,
+            items: (g.items || []).slice(0, limitValue),
           }))
           .filter((g) => g.items && g.items.length);
       }
 
       renderGroups(groupsToRender);
+
       const total = (groupsToRender || []).reduce(
         (sum, g) => sum + (g.items ? g.items.length : 0),
         0
       );
+
+      let extra = [];
+      if (hasSearch) extra.push("recherche");
+      if (hasDateFilter) extra.push(`≤ ${currentDateFilterDays} jours`);
+      const extraLabel = extra.length ? ` (${extra.join(" + ")})` : "";
+
       statsEl.textContent = `${feedState.categoryLabel} — ${total} élément${
         total > 1 ? "s" : ""
-      }${q ? " (filtré)" : ""}`;
+      }${extraLabel}`;
     } else {
       let itemsToRender = feedState.items || [];
 
-      if (q) {
-        itemsToRender = itemsToRender.filter((item) =>
-          matchesSearch(item, q)
-        );
+      if (hasSearch || hasDateFilter) {
+        itemsToRender = itemsToRender.filter((item) => {
+          const okSearch = matchesSearch(item, q);
+          const okDate = passesDateFilter(item);
+          return okSearch && okDate;
+        });
+      }
+
+      if (Number.isFinite(limitValue)) {
+        itemsToRender = itemsToRender.slice(0, limitValue);
       }
 
       renderItems(itemsToRender);
       const total = itemsToRender.length;
+
+      let extra = [];
+      if (hasSearch) extra.push("recherche");
+      if (hasDateFilter) extra.push(`≤ ${currentDateFilterDays} jours`);
+      const extraLabel = extra.length ? ` (${extra.join(" + ")})` : "";
+
       statsEl.textContent = `${feedState.categoryLabel} — ${total} élément${
         total > 1 ? "s" : ""
-      }${q ? " (filtré)" : ""}`;
+      }${extraLabel}`;
     }
+
+  }
+
+  // --- UI du filtre date (panneau sous la barre) ---
+
+  function updateDateFilterInfo() {
+    const infoEl = dateFilterPanel?.querySelector(".date-filter-info");
+    if (!infoEl) return;
+
+    if (!currentDateFilterDays || currentDateFilterDays <= 0) {
+      infoEl.textContent = "Filtre désactivé — tous les résultats sont affichés.";
+    } else if (currentDateFilterDays === 1) {
+      infoEl.textContent = "Affichage limité aux 24 dernières heures.";
+    } else if (currentDateFilterDays === 2) {
+      infoEl.textContent = "Affichage limité aux 48 dernières heures.";
+    } else {
+      infoEl.textContent = `Affichage limité aux ${currentDateFilterDays} derniers jours.`;
+    }
+  }
+
+  function applyDateFilterSelection(days, options = {}) {
+    const { skipReload = false } = options; // ici skipReload = "ne pas re-render" pendant l'init
+
+    if (!days || Number.isNaN(days) || days <= 0) {
+      currentDateFilterDays = null;
+      localStorage.removeItem(DATE_FILTER_STORAGE_KEY);
+    } else {
+      currentDateFilterDays = days;
+      localStorage.setItem(DATE_FILTER_STORAGE_KEY, String(days));
+    }
+
+    if (dateFilterPanel) {
+      const pills = dateFilterPanel.querySelectorAll(".date-filter-pill");
+      pills.forEach((p) => {
+        const d = parseInt(p.getAttribute("data-days"), 10);
+        const isActive =
+          (!currentDateFilterDays && (!d || d === 0)) ||
+          (currentDateFilterDays && d === currentDateFilterDays);
+        p.classList.toggle("active", !!isActive);
+      });
+    }
+
+    if (dateFilterBtn) {
+      const hasActiveFilter = !!(currentDateFilterDays && currentDateFilterDays > 0);
+      dateFilterBtn.classList.toggle("active", hasActiveFilter);
+    }
+
+    updateDateFilterInfo();
+
+    // pas de nouvel appel API : on réapplique juste tous les filtres côté front
+    if (!skipReload) {
+      renderFromState();
+    }
+  }
+
+  function openDateFilterPanel() {
+    if (!dateFilterPanel) return;
+    dateFilterPanel.classList.remove("hidden");
+    dateFilterPanel.classList.add("open");
+  }
+
+  function closeDateFilterPanel() {
+    if (!dateFilterPanel) return;
+    dateFilterPanel.classList.add("hidden");
+    dateFilterPanel.classList.remove("open");
+  }
+
+  function toggleDateFilterPanel() {
+    if (!dateFilterPanel) return;
+    const isHidden = dateFilterPanel.classList.contains("hidden");
+    if (isHidden) {
+      openDateFilterPanel();
+    } else {
+      closeDateFilterPanel();
+    }
+  }
+
+  function initDateFilterPanel() {
+    if (!dateFilterPanel) return;
+
+    dateFilterPanel.innerHTML = `
+      <div class="date-filter-inner">
+        <span class="date-filter-label">Période</span>
+        <div class="date-filter-pills">
+          <button class="date-filter-pill" data-days="0">Tous</button>
+          <button class="date-filter-pill" data-days="1">24h</button>
+          <button class="date-filter-pill" data-days="2">48h</button>
+          <button class="date-filter-pill" data-days="3">3 jours</button>
+          <button class="date-filter-pill" data-days="7">7 jours</button>
+        </div>
+        <button type="button" class="date-filter-reset">Réinitialiser</button>
+      </div>
+    `;
+
+    const saved = localStorage.getItem(DATE_FILTER_STORAGE_KEY);
+    const savedDays = saved != null ? parseInt(saved, 10) : 0;
+    applyDateFilterSelection(
+      !savedDays || Number.isNaN(savedDays) || savedDays <= 0 ? 0 : savedDays,
+      { skipReload: true }
+    );
+
+    dateFilterPanel.addEventListener("click", (e) => {
+      const pill = e.target.closest(".date-filter-pill");
+      if (pill) {
+        const d = parseInt(pill.getAttribute("data-days"), 10) || 0;
+        applyDateFilterSelection(d);
+        return;
+      }
+
+      const resetBtn = e.target.closest(".date-filter-reset");
+      if (resetBtn) {
+        applyDateFilterSelection(0);
+        return;
+      }
+    });
+
+    dateFilterBtn?.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      toggleDateFilterPanel();
+    });
+
+    document.addEventListener("click", (e) => {
+      if (!dateFilterPanel || dateFilterPanel.classList.contains("hidden")) return;
+      const target = e.target;
+      if (
+        target === dateFilterPanel ||
+        dateFilterPanel.contains(target) ||
+        target === dateFilterBtn ||
+        (dateFilterBtn && dateFilterBtn.contains(target))
+      ) {
+        return;
+      }
+      closeDateFilterPanel();
+    });
+
+    updateDateFilterInfo();
   }
 
   function openSearchMode() {
     if (!searchContainer || !searchToggleBtn || !filtersContainer || !controlsEl) return;
 
-    // on fige la largeur actuelle de l'encadré central
     const w = controlsEl.offsetWidth;
     if (w && w > 0) {
       controlsEl.style.width = w + "px";
@@ -590,7 +840,6 @@ document.addEventListener("DOMContentLoaded", () => {
     searchContainer.classList.add("hidden");
     filtersContainer.classList.remove("hidden");
 
-    // on libère la largeur pour que les listes puissent se recalculer
     controlsEl.style.width = "";
     controlsEl.style.flex = "";
 
@@ -630,7 +879,6 @@ document.addEventListener("DOMContentLoaded", () => {
   // --- Logs popup ---
 
   function classifyLogLine(line) {
-    // format attendu : [date] [LEVEL] [TAG] message...
     const m = line.match(/^\[[^\]]+\]\s+\[[^\]]+\]\s+\[([^\]]+)\]/);
     const tag = m ? m[1].toUpperCase() : "";
 
@@ -679,7 +927,6 @@ document.addEventListener("DOMContentLoaded", () => {
       logsContent.textContent = "Erreur lors du chargement des logs.";
     }
   }
-
 
   function openLogs() {
     if (!logsOverlay || !logsModal) return;
@@ -785,7 +1032,6 @@ document.addEventListener("DOMContentLoaded", () => {
         detailsTitleEl.textContent = data.title;
       }
 
-      // Poster IMDb prioritaire si dispo
       if (data.poster) {
         applyDetailsPoster(data.poster);
       }
@@ -854,12 +1100,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const effectiveCat = catKey || item.category || categorySelect?.value || "film";
 
-    // Titre initial = titre d'affichage actuel
     if (detailsTitleEl) {
       detailsTitleEl.textContent = getDisplayTitle(item);
     }
 
-    // Poster de la carte tant qu'on n'a pas mieux
     applyDetailsPoster(item.poster || item.posterUrl || null);
 
     renderDetailsSkeleton(item, effectiveCat);
@@ -880,7 +1124,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   detailsCloseBtn?.addEventListener("click", closeDetails);
 
-
   // --- Header compact au scroll ---
 
   window.addEventListener("scroll", () => {
@@ -889,7 +1132,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const scrolled = window.scrollY || document.documentElement.scrollTop;
     const isMobile = window.innerWidth <= 768;
 
-    // Desktop : header-compact comme avant
     if (!isMobile) {
       if (scrolled > 40) {
         headerEl.classList.add("header-compact");
@@ -897,17 +1139,14 @@ document.addEventListener("DOMContentLoaded", () => {
         headerEl.classList.remove("header-compact");
       }
     } else {
-      // Mobile : jamais de header-compact (évite les sauts de layout)
       headerEl.classList.remove("header-compact");
 
-      // Étape 1 : léger resserrage
       if (scrolled > 20) {
         headerEl.classList.add("header-mobile-tight");
       } else {
         headerEl.classList.remove("header-mobile-tight");
       }
 
-      // Étape 2 : fondu logo + boutons
       if (scrolled > 60) {
         headerEl.classList.add("header-mobile-faded");
       } else {
@@ -915,13 +1154,9 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }
 
-    // Étape 3 : collapse barre en rond uniquement en mobile
     if (!controlsEl || !isMobile) return;
 
-    // Si l'utilisateur a RE-OUVERT manuellement la barre,
-    // on NE recollapse plus tant qu'il n'est pas revenu vers le haut.
     if (controlsManuallyExpanded) {
-      // quand on revient presque en haut, on réactive le comportement auto
       if (scrolled < 80) {
         controlsManuallyExpanded = false;
       }
@@ -936,7 +1171,6 @@ document.addEventListener("DOMContentLoaded", () => {
       controlsCollapsed = false;
     }
   });
-
 
   // --- Settings footer/version ---
 
@@ -967,20 +1201,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // --- Events ---
 
-  // changement du tri par défaut dans les paramètres
   defaultSortSelect?.addEventListener("change", (e) => {
     const value = e.target.value || "seeders";
 
-    // on sauvegarde le choix
     localStorage.setItem("defaultSort", value);
 
-    // on met à jour le select de tri du header
     if (sortSelect) {
       sortSelect.value = value;
       autosizeSelect(sortSelect);
     }
 
-    // on recharge le flux avec ce nouveau tri
     loadFeed();
   });
 
@@ -993,7 +1223,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   openLogsBtn?.addEventListener("click", openLogs);
   closeLogsBtn?.addEventListener("click", closeLogs);
-
 
   // --- Recherche ---
 
@@ -1023,15 +1252,30 @@ document.addEventListener("DOMContentLoaded", () => {
 
   document.addEventListener("keydown", (e) => {
     if (e.key !== "Escape") return;
-  
+
     if (detailsModal && !detailsModal.classList.contains("hidden") && detailsModal.classList.contains("show")) {
       closeDetails();
-    } else if (logsModal && !logsModal.classList.contains("hidden") && logsModal.classList.contains("show")) {
+      return;
+    }
+
+    if (logsModal && !logsModal.classList.contains("hidden") && logsModal.classList.contains("show")) {
       closeLogs();
-    } else if (modal && !modal.classList.contains("hidden") && modal.classList.contains("show")) {
+      return;
+    }
+
+    if (modal && !modal.classList.contains("hidden") && modal.classList.contains("show")) {
       closeSettings();
-    } else if (searchContainer && !searchContainer.classList.contains("hidden")) {
+      return;
+    }
+
+    if (searchContainer && !searchContainer.classList.contains("hidden")) {
       closeSearchMode();
+      return;
+    }
+
+    if (dateFilterPanel && !dateFilterPanel.classList.contains("hidden")) {
+      closeDateFilterPanel();
+      return;
     }
   });
 
@@ -1041,9 +1285,10 @@ document.addEventListener("DOMContentLoaded", () => {
     loadFeed();
   });
 
+  // Résultats : n'affecte que le rendu local, pas l'API
   limitSelect?.addEventListener("change", (e) => {
     autosizeSelect(e.target);
-    loadFeed();
+    renderFromState();
   });
 
   sortSelect?.addEventListener("change", (e) => {
@@ -1054,12 +1299,8 @@ document.addEventListener("DOMContentLoaded", () => {
   controlsEl?.addEventListener("click", () => {
     if (window.innerWidth > 768) return;
 
-    // Si déjà ouverte, on ne fait rien de spécial
     if (!controlsCollapsed) return;
 
-    // Mobile + barre actuellement en mode rond -> on la ré-ouvre et
-    // on passe en "mode manuel" : le scroll ne la recollapsera plus
-    // tant que l'utilisateur n'est pas remonté en haut.
     controlsEl.classList.remove("controls-collapsed");
     controlsCollapsed = false;
     controlsManuallyExpanded = true;
@@ -1070,6 +1311,7 @@ document.addEventListener("DOMContentLoaded", () => {
     await initCategories();
     autosizeSelect(limitSelect);
     autosizeSelect(sortSelect);
+    initDateFilterPanel();
     await loadFeed();
     await initVersionFooter();
   })();

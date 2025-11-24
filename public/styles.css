@@ -188,7 +188,7 @@ body {
 }
 
 .icon-glyph {
-  font-size: 15px;
+  font-size: 18px;
   line-height: 1;
 }
 
@@ -468,7 +468,7 @@ body {
   background: radial-gradient(circle at top right, var(--accent-soft), transparent),
               rgba(3, 7, 18, 0.96);
   border-radius: 26px;
-  padding: 18px 18px 22px;
+  padding: 10px 18px 22px;
   border: var(--border-subtle);
   box-shadow: var(--shadow-soft);
 }
@@ -476,7 +476,159 @@ body {
 .stats {
   font-size: 20px;
   color: var(--muted);
-  margin-bottom: 10px;
+  margin-bottom: 1px;
+}
+
+.stats-bar {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+
+  margin: 0px 0 0px 0;
+  padding: 2px 2px;
+
+  background: none;
+  border-radius: 14px;
+  backdrop-filter: blur(12px);
+  position: relative;
+}
+
+.theme-light .stats-bar {
+  background: none;
+}
+
+.date-filter-btn {
+  margin-left: auto;
+}
+
+.date-filter-panel {
+  position: absolute;
+  top: 50%;
+  right: calc(var(--filters-pill-height) + 10px);
+  transform: translateY(-50%);
+  z-index: 5;
+}
+
+.date-filter-panel.hidden {
+  display: none;
+}
+
+.date-filter-inner {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+
+  padding: 4px 10px;
+  min-height: var(--filters-pill-height);
+  border-radius: 999px;
+
+  background: rgba(9, 9, 20, 0.92);
+  border: var(--border-subtle);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.45);
+}
+
+.theme-light .date-filter-inner {
+  background: rgba(255, 255, 255, 0.96);
+  border-color: rgba(148, 163, 184, 0.35);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.08);
+}
+
+.date-filter-main {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.date-filter-label {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.date-filter-pills {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.date-filter-pill {
+  border: none;
+  border-radius: 999px;
+  padding: 4px 8px;
+  font-size: 11px;
+  cursor: pointer;
+
+  background: transparent;
+  color: var(--muted);
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.date-filter-pill:hover {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.date-filter-pill.active {
+  background: var(--accent);
+  color: #fff;
+}
+
+.theme-light .date-filter-pill.active {
+  color: #ffffff;
+}
+
+.date-filter-side {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+
+.date-filter-reset {
+  border: none;
+  background: transparent;
+  color: var(--accent);
+  font-size: 11px;
+  cursor: pointer;
+  padding: 4px 6px;
+  margin-left: 6px;
+  border-radius: 999px;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.date-filter-reset:hover {
+  background: var(--accent-soft);
+}
+
+.theme-light .date-filter-reset {
+  color: var(--accent);
+}
+
+.date-filter-info {
+  font-size: 10px;
+  color: var(--muted);
+  max-width: 220px;
+  text-align: right;
+}
+
+/* Bouton filtre — état actif */
+.date-filter-btn.active {
+  background: var(--accent);
+  color: #020817;
+  box-shadow:
+    0 0 0 2px rgba(56, 189, 248, 0.8),
+    0 0 12px rgba(56, 189, 248, 0.65);
+  transform: translateY(-1px);
+}
+
+/* Hover d’un bouton actif (plus punchy) */
+.date-filter-btn.active:hover {
+  background: var(--accent);
+  color: #020817;
+  box-shadow:
+    0 0 0 3px rgba(56, 189, 248, 1),
+    0 0 16px rgba(56, 189, 248, 0.9);
 }
 
 .loading {
@@ -1244,7 +1396,7 @@ body {
 /* ====================================================================== */
 
 .category-group {
-  margin-top: 30px;
+  margin-top: 10px;
   padding: 16px 18px 20px;
   background: rgba(9, 9, 20, 0.6);
   border-radius: 16px;
