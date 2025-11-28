@@ -672,11 +672,10 @@ body {
   color: var(--muted);
 }
 
-/* --- CARTES --- */
 .cards-grid {
   margin-top: 8px;
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
   gap: 18px;
 }
 
@@ -1518,16 +1517,85 @@ body.no-scroll {
 /* RESPONSIVE                                                             */
 /* ====================================================================== */
 
-@media (min-width: 769px) {
-  .logo {
-    transform: scale(1.5);
-    transform-origin: left center;
+@media (max-width: 340px) {
+
+  .card {
+    align-items: center;
+    text-align: center;
+  }
+
+  .card-poster-wrap {
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .card-body {
+    width: 100%;
+    max-width: 260px;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: left;
+  }
+
+  .card-title {
+    text-align: left;
+    margin-bottom: 6px;
+  }
+
+  .card-sub {
+    text-align: left;
+  }
+
+  .card-actions {
+    flex-direction: column;
+    width: 100%;
+    max-width: 260px;
+    margin: 8px auto 0;
+    align-items: stretch;
+    gap: 6px;
+  }
+
+  .btn {
+    width: 100%;
+    text-align: center;
   }
 }
 
-@media (max-width: 1100px) {
-  .cards-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+@media (max-width: 430px) {
+  .category-group {
+    padding: 12px 10px 14px;
+  }
+
+  .card {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 10px 10px 12px;
+  }
+
+  .card-poster-wrap {
+    flex: 0 0 auto;
+    margin-bottom: 8px;
+  }
+
+  .card-title {
+    font-size: 14px;
+    margin-bottom: 4px;
+  }
+
+  .card-sub {
+    font-size: 11px;
+  }
+
+  .card-actions {
+    margin-top: 6px;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .btn {
+    padding: 5px 10px;
+    font-size: 11px;
   }
 }
 
@@ -1537,48 +1605,23 @@ body.no-scroll {
   }
 
   .app-main {
-    padding: 10px 10px 14px; /* on garde ton espace interne */
+    padding: 10px 10px 14px;
     margin-left: -12px;
-    margin-right: -12px;     /* on “mange” la marge externe */
+    margin-right: -12px;
   }
 
   .cards-grid {
-    grid-template-columns: 1fr;
     gap: 12px;
   }
+}
 
-  .card {
-    padding: 10px;
-    border-radius: 25px;
-  }
-
-  .card-poster-wrap {
-    flex: 0 0 90px;
-  }
-
-  .card-poster,
-  .poster-fallback {
-    width: 90px;
-    height: 135px;
-  }
-
-  .card-title {
-    font-size: 15px;
-  }
-
-  .card-sub {
-    font-size: 8px;
-  }
-
-  .btn {
-    padding: 5px 9px;
-    font-size: 10px;
+@media (max-width: 720px) {
+  .cards-grid {
+    grid-template-columns: 1fr;
   }
 }
 
 @media (max-width: 768px) {
-  /* ====================== HEADER ====================== */
-
   .app-header {
     position: sticky;
     top: 0;
@@ -1595,7 +1638,6 @@ body.no-scroll {
     transition: padding 0.25s ease, background 0.25s ease;
   }
 
-  /* Fondu logo / boutons */
   .logo,
   .header-actions {
     transition: opacity 0.25s ease, transform 0.25s ease;
@@ -1608,8 +1650,6 @@ body.no-scroll {
     pointer-events: none;
   }
 
-  /* On garde la classe au cas o�, mais on ne touche plus � la hauteur
-     -> pas de "saut" vertical quand on toggle */
   .app-header.header-mobile-tight {
     padding-top: 8px;
     padding-bottom: 10px;
@@ -1623,8 +1663,6 @@ body.no-scroll {
   .header-actions {
     order: 2;
   }
-
-  /* ====================== SEARCH / FILTERS ====================== */
 
   .search-container {
     flex: 1;
@@ -1650,9 +1688,8 @@ body.no-scroll {
   
   .controls-search-btn .material-symbols-rounded,
   .filters-mini .material-symbols-rounded {
-    font-size: 18px;             /* un poil plus gros pour suivre */
+    font-size: 18px;
   }
-  /* ====================== CONTROLS � MODE NORMAL ====================== */
 
   .controls {
     order: 3;
@@ -1707,45 +1744,35 @@ body.no-scroll {
   #limit-select.pill-select    { width: auto; }
   #sort-select.pill-select     { width: auto; }
 
-  /* ====================== CONTROLS � MODE COLLAPSED ====================== */
-
   .controls.controls-collapsed {
-    /* IMPORTANT : on ne touche pas � la hauteur globale, juste au layout horizontal */
-    width: auto;              /* se r�duit en largeur */
+    width: auto;
     max-width: none;
     min-width: 0;
-
-    margin-left: auto;        /* coll� � droite */
+    margin-left: auto;
     padding: 2px;
     border-radius: 999px;
-
-    background: transparent;  /* plus de fond */
-    border: none;
-    box-shadow: none;
-    backdrop-filter: none;
-
-    justify-content: flex-end;
-    overflow: hidden;         /* masque tout sauf le rond */
-  }
-
-  .controls.controls-collapsed {
-    /* IMPORTANT : on ne touche plus � la largeur globale */
-    width: 100%;
-    max-width: 100%;
-    min-width: 0;
-
-    margin-left: 0;
-    margin-right: 0;
-    padding: 4px 8px;
-    border-radius: 999px;
-
     background: transparent;
     border: none;
     box-shadow: none;
     backdrop-filter: none;
+    justify-content: flex-end;
+    overflow: hidden;
+  }
 
-    justify-content: flex-end;  /* le rond glisse � droite */
-    overflow: hidden;           /* on masque tout sauf le bouton */
+  .controls.controls-collapsed {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    margin-left: 0;
+    margin-right: 0;
+    padding: 4px 8px;
+    border-radius: 999px;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    backdrop-filter: none;
+    justify-content: flex-end;
+    overflow: hidden;
   }
 
   .controls.controls-collapsed #filters-container {
@@ -1764,21 +1791,19 @@ body.no-scroll {
   .controls.controls-collapsed #search-toggle {
     margin: 0;
   }
+
   .search-input {
-    font-size: 16px;   /* >= 16px pour �viter le zoom Safari */
+    font-size: 16px;
     line-height: 1.3;
   }
+
   .cards-grid,
   .category-group .cards-grid {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr);
-    gap: 12px;
     width: 100%;
     max-width: 100%;
     box-sizing: border-box;
   }
 
-  /* Les sections de groupe ne d�passent jamais */
   .category-group {
     width: 100%;
     max-width: 100%;
@@ -1787,7 +1812,6 @@ body.no-scroll {
     padding-right: 10px;
   }
 
-  /* Les cartes prennent 100% de la colonne et ne d�bordent pas */
   .card {
     width: 100%;
     max-width: 100%;
@@ -1811,6 +1835,13 @@ body.no-scroll {
   .details-title {
     font-size: 1.15rem;
     text-align: left;
+  }
+}
+
+@media (min-width: 769px) {
+  .logo {
+    transform: scale(1.5);
+    transform-origin: left center;
   }
 }
 
