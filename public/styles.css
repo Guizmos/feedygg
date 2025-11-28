@@ -1613,8 +1613,7 @@ body.no-scroll {
   }
 }
 
-
-@media (max-width: 600px) {
+@media (max-width: 1300px) {
   body {
     padding: 12px;
   }
@@ -1623,6 +1622,11 @@ body.no-scroll {
     padding: 10px 10px 14px;
     margin-left: -12px;
     margin-right: -12px;
+  }
+
+  .category-group {
+    padding-left: 10px;
+    padding-right: 10px;
   }
 
   .cards-grid {
