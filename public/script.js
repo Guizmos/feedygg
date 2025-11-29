@@ -75,18 +75,17 @@ document.addEventListener("DOMContentLoaded", () => {
   const detailsImdbLinkEl = document.getElementById("details-imdb-link");
   const dateFilterBtn = document.getElementById("date-filter-btn");
   const dateFilterPanel = document.getElementById("date-filter-panel");
+  const activeDateFilterChip = document.getElementById("active-date-filter-chip");
   const DATE_FILTER_STORAGE_KEY = "dateFilterDays";
 
   let currentDateFilterDays = null;
 
-  // --- Footer / Version ---
   const footerEl = document.getElementById("app-footer");
   const appVersionEl = document.getElementById("app-version");
 
   let controlsCollapsed = false;
   let controlsManuallyExpanded = false;
 
-  // --- State pour le feed + la recherche ---
   let currentSearch = "";
   const feedState = {
     mode: "single",
@@ -134,8 +133,6 @@ document.addEventListener("DOMContentLoaded", () => {
     sortSelect.value = savedDefaultSort;
   }
 
-    // --- Boutons responsive "Télécharger" (texte ↔ icône) ---
-
   const responsiveCards = [];
 
 function updateCardButtonMode(card) {
@@ -176,12 +173,9 @@ function updateCardButtonMode(card) {
     }
   }
 
-  // Fallback : on recalcule pour toutes les cartes au resize fenêtre
   window.addEventListener("resize", () => {
     responsiveCards.forEach(updateCardButtonMode);
   });
-
-  // --- Catégories ---
 
   async function initCategories() {
     try {
@@ -208,8 +202,6 @@ function updateCardButtonMode(card) {
 
     autosizeSelect(categorySelect);
   }
-
-  // --- Chargement du flux ---
 
   async function loadFeed() {
     statsEl.textContent = "";
@@ -644,6 +636,46 @@ function updateCardButtonMode(card) {
     return diffMs <= maxMs;
   }
 
+  function getDateFilterLabel(days) {
+    switch (days) {
+      case 1: return "24h";
+      case 2: return "48h";
+      case 3: return "3 jours";
+      case 7: return "7 jours";
+      default: return "";
+    }
+  }
+
+  function updateDateFilterChip() {
+    if (!activeDateFilterChip) return;
+
+    if (!currentDateFilterDays || currentDateFilterDays <= 0) {
+      activeDateFilterChip.classList.add("hidden");
+      activeDateFilterChip.innerHTML = "";
+      return;
+    }
+
+    const label = getDateFilterLabel(currentDateFilterDays);
+    if (!label) {
+      activeDateFilterChip.classList.add("hidden");
+      activeDateFilterChip.innerHTML = "";
+      return;
+    }
+
+    activeDateFilterChip.classList.remove("hidden");
+    activeDateFilterChip.innerHTML = `
+      <div class="date-filter-chip-wrapper">
+        <div class="date-filter-chip-inner">
+          <span class="date-filter-chip-label">${label}</span>
+        </div>
+
+        <button type="button" class="date-filter-chip-clear" title="Retirer ce filtre">
+          <span class="material-symbols-rounded">close</span>
+        </button>
+      </div>
+    `;
+  }
+
   function getUiLimit() {
     if (!limitSelect) return Infinity;
 
@@ -695,14 +727,16 @@ function updateCardButtonMode(card) {
         0
       );
 
-      let extra = [];
-      if (hasSearch) extra.push("recherche");
-      if (hasDateFilter) extra.push(`≤ ${currentDateFilterDays} jours`);
-      const extraLabel = extra.length ? ` (${extra.join(" + ")})` : "";
+      const extraText = "";
 
-      statsEl.textContent = `${feedState.categoryLabel} — ${total} élément${
-        total > 1 ? "s" : ""
-      }${extraLabel}`;
+      statsEl.innerHTML = `
+        <span class="stats-chip stats-chip-primary">
+          ${feedState.categoryLabel}
+        </span>
+        <span class="stats-chip stats-chip-secondary">
+          ${total} élément${total > 1 ? "s" : ""}${extraText}
+        </span>
+      `;
     } else {
       let itemsToRender = feedState.items || [];
 
@@ -721,14 +755,16 @@ function updateCardButtonMode(card) {
       renderItems(itemsToRender);
       const total = itemsToRender.length;
 
-      let extra = [];
-      if (hasSearch) extra.push("recherche");
-      if (hasDateFilter) extra.push(`≤ ${currentDateFilterDays} jours`);
-      const extraLabel = extra.length ? ` (${extra.join(" + ")})` : "";
+      const extraText = "";
 
-      statsEl.textContent = `${feedState.categoryLabel} — ${total} élément${
-        total > 1 ? "s" : ""
-      }${extraLabel}`;
+      statsEl.innerHTML = `
+        <span class="stats-chip stats-chip-primary">
+          ${feedState.categoryLabel}
+        </span>
+        <span class="stats-chip stats-chip-secondary">
+          ${total} élément${total > 1 ? "s" : ""}${extraText}
+        </span>
+      `;
     }
 
   }
@@ -751,7 +787,7 @@ function updateCardButtonMode(card) {
   }
 
   function applyDateFilterSelection(days, options = {}) {
-    const { skipReload = false } = options; // ici skipReload = "ne pas re-render" pendant l'init
+    const { skipReload = false } = options;
 
     if (!days || Number.isNaN(days) || days <= 0) {
       currentDateFilterDays = null;
@@ -778,8 +814,8 @@ function updateCardButtonMode(card) {
     }
 
     updateDateFilterInfo();
+    updateDateFilterChip();
 
-    // pas de nouvel appel API : on réapplique juste tous les filtres côté front
     if (!skipReload) {
       renderFromState();
     }
@@ -812,7 +848,6 @@ function updateCardButtonMode(card) {
 
     dateFilterPanel.innerHTML = `
       <div class="date-filter-inner">
-        <span class="date-filter-label">Période</span>
         <div class="date-filter-pills">
           <button class="date-filter-pill" data-days="0">Tous</button>
           <button class="date-filter-pill" data-days="1">24h</button>
@@ -1367,6 +1402,14 @@ function updateCardButtonMode(card) {
     autosizeSelect(limitSelect);
     autosizeSelect(sortSelect);
     initDateFilterPanel();
+    activeDateFilterChip?.addEventListener("click", (e) => {
+      const btn = e.target.closest(".date-filter-chip-clear");
+      if (!btn) return;
+
+      e.preventDefault();
+      e.stopPropagation();
+      applyDateFilterSelection(0);
+    });
     await loadFeed();
     await initVersionFooter();
   })();

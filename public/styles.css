@@ -482,15 +482,49 @@ body {
 }
 
 .stats {
-  font-size: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
   color: var(--muted);
   margin-bottom: 1px;
+}
+
+.stats-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: var(--filters-pill-height);
+  padding: 0 14px;
+  border-radius: 999px;
+
+  background: rgba(255, 255, 255, 0.96);
+  border: var(--border-subtle);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+
+  white-space: nowrap;
+}
+
+.stats-chip-primary {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.stats-chip-secondary {
+  color: var(--muted);
+}
+
+.theme-light .stats-chip {
+  background: rgba(255, 255, 255, 0.96);
+  border-color: rgba(148, 163, 184, 0.35);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.04);
 }
 
 .stats-bar {
   display: flex;
   align-items: center;
-  gap: 2px;
+  gap: 8px;
 
   margin: 0px 0 0px 0;
   padding: 2px 2px;
@@ -630,13 +664,91 @@ body {
   transform: translateY(-1px);
 }
 
-/* Hover d’un bouton actif (plus punchy) */
 .date-filter-btn.active:hover {
   background: var(--accent);
   color: #020817;
   box-shadow:
     0 0 0 3px rgba(56, 189, 248, 1),
     0 0 16px rgba(56, 189, 248, 0.9);
+}
+
+.date-filter-chip {
+  position: relative;
+  flex: 0 0 auto;
+}
+
+.date-filter-chip-wrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.date-filter-chip-inner {
+  display: inline-grid;
+  place-items: center;
+  padding: 0 14px;
+  height: var(--filters-pill-height);
+  border-radius: 999px;
+
+  background: rgba(255,255,255,0.96);
+  border: var(--border-subtle);
+  backdrop-filter: blur(14px);
+}
+
+.date-filter-chip-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--accent);
+  position: relative;
+  top: -1px;
+}
+
+.date-filter-chip-clear {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  border: 1px solid rgba(0,0,0,0.08);
+
+  background: rgba(255,255,255,0.9);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  cursor: pointer;
+}
+
+.date-filter-chip-clear:hover {
+  background: #ffffff;
+  transform: scale(1.12);
+}
+
+.date-filter-chip-clear .material-symbols-rounded {
+  font-size: 14px;
+  color: #777;
+  font-variation-settings: "wght" 500, "FILL" 0;
+}
+
+
+.theme-light .date-filter-chip-inner {
+  background: rgba(255, 255, 255, 0.96);
+  border-color: rgba(148, 163, 184, 0.35);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.08);
+}
+
+.theme-light .date-filter-chip-clear {
+  background: #f0f0f0;
+  border-color: rgba(0,0,0,0.1);
+  color: #555;
+}
+
+.theme-light .date-filter-chip-clear:hover {
+  background: #ffffff;
 }
 
 .loading {
@@ -1598,7 +1710,7 @@ body.no-scroll {
     /* c’est ton spacer */
     display: none !important;
   }
-  
+
   /* on enlève le spacer éventuel */
   .card-actions-spacer {
     display: none !important;
